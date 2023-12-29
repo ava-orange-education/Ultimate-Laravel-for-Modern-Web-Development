@@ -1,0 +1,268 @@
+
+composer global require laravel/vapor-cli --update-with-dependencies
+
+#--------------------------------------------------------------------------------------------------------------------------------
+composer require laravel/vapor-cli --update-with-dependencies
+#--------------------------------------------------------------------------------------------------------------------------------
+
+php vendor/bin/vapor list
+
+#--------------------------------------------------------------------------------------------------------------------------------
+php vendor/bin/vapor help deploy
+
+#--------------------------------------------------------------------------------------------------------------------------------
+composer require laravel/vapor-core --update-with-dependencies
+#--------------------------------------------------------------------------------------------------------------------------------
+
+composer require laravel/vapor-ui
+#--------------------------------------------------------------------------------------------------------------------------------
+
+php artisan vapor-ui:install
+#--------------------------------------------------------------------------------------------------------------------------------
+protected function gate()
+{
+    Gate::define('viewVaporUI', function ($user = null) {
+
+        return in_array(optional($user)->email, [
+
+            'abc@example.com',
+
+        ]);
+
+    });
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+vapor env my-environment
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+id: 3
+name: vapor-laravel-app
+environments:
+    production:
+        build:
+            - 'composer install --no-dev'
+    my-environment:
+        build:
+            - 'composer install --no-dev'
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor env my-environment --docker
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor open my-environment
+
+Vapor CLI utilizes the staging environment by default when performing a command:
+vapor open // Opens the `staging` environment in  default browser
+
+vapor open production // Opens the `production` environment in  default browser
+
+#--------------------------------------------------------------------------------------------------------------------------------
+id: 3
+name: vapor-laravel-app
+default-environment: production
+environments:
+    production:
+        build:
+            - 'composer install --no-dev'
+    my-environment:
+        build:
+            - 'composer install --no-dev'
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor deploy production
+#--------------------------------------------------------------------------------------------------------------------------------
+
+id: 4
+name: vapor-app
+environments:
+  production:
+    memory: 1024
+    database: vapor-app
+    cache: vapor-cache
+    build:
+      - 'composer install --no-dev'
+      - 'php artisan event:cache'
+
+    deploy:
+      - 'php artisan migrate --force'
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+id: 4
+name: vapor-app
+environments:
+  production:
+    memory: 1024
+    database: vapor-app
+    cache: vapor-cache
+    build:
+      - 'composer install --no-dev'
+      - 'php artisan event:cache'
+
+    deploy:
+      - 'php artisan migrate --force'
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor hook:output {DEPLOYMENT_HOOK_ID}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor hook:log {DEPLOYMENT_HOOK_ID}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+return $response->withHeaders([
+
+    'X-Vapor-Base64-Encode' => 'True',
+
+]);
+
+#--------------------------------------------------------------------------------------------------------------------------------
+OPENSSL_CONF="/var/task/openssl.cnf"
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+dir = certificates
+
+[ ca ]
+default_ca = CA_default
+#--------------------------------------------------------------------------------------------------------------------------------
+
+[ CA_default ]
+serial = $dir/serial
+database = $dir/index.txt
+new_certs_dir = $dir/newcerts
+certificate  = $dir/cacert.pem
+private_key = $dir/private/cakey.pem
+default_days = 36500
+default_md  = sha256
+preserve = no
+email_in_dn  = no
+nameopt = default_ca
+certopt = default_ca
+policy = policy_match
+#--------------------------------------------------------------------------------------------------------------------------------
+
+[ policy_match ]
+commonName = supplied
+countryName = optional
+stateOrProvinceName = optional
+organizationName = optional
+organizationalUnitName = optional
+emailAddress = optional
+#--------------------------------------------------------------------------------------------------------------------------------
+
+[ req ]
+default_bits = 2048
+default_keyfile = priv.pem
+default_md = sha256
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+encyrpt_key = no
+#--------------------------------------------------------------------------------------------------------------------------------
+
+[ req_distinguished_name ]
+#--------------------------------------------------------------------------------------------------------------------------------
+
+[ v3_ca ]
+basicConstraints = CA:TRUE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+#--------------------------------------------------------------------------------------------------------------------------------
+
+[ v3_req ]
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+Source : docs.vapor.build
+
+#--------------------------------------------------------------------------------------------------------------------------------
+Route::get('/', function () {
+    dispatch(function () {
+        Mail::to(abc@example.com')->send(new WelcomeMessage);
+    })->afterResponse();
+
+    return view('home');
+});
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor domain example.com
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor domain:list
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor record example.com A www 192.168.1.1
+
+vapor record example.com A @ 192.168.1.1
+
+vapor record example.com CNAME foo another-example.com
+
+vapor record example.com MX foo "10 example.com,20 example2.com"
+
+#--------------------------------------------------------------------------------------------------------------------------------
+vapor record:delete example.com A www
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor cert example.com
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor cert:list example.com
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor cert:delete example.com
+#--------------------------------------------------------------------------------------------------------------------------------
+
+id: 3
+name: vapor-laravel-app
+environments:
+    production:
+
+        domain: example.com
+        build:
+            - 'composer install --no-dev'
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+id: 3
+name: vapor-laravel-app
+environments:
+    production:
+        domain:
+            - example1.com
+            - example2.com
+        build:
+            - 'composer install --no-dev'
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+id: 3
+name: vapor-laravel-app
+environments:
+    production:
+        domain: '*.example.com'
+        build:
+            - 'composer install --no-dev'
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+vapor cert v1.api.example.com
+#--------------------------------------------------------------------------------------------------------------------------------
+
+id: 3
+name: vapor-laravel-app
+environments:
+    production:
+        domain: 'v1.api.example.com'
+        build:
+            - 'composer install --no-dev'

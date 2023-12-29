@@ -1,0 +1,440 @@
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\View\View;
+
+class UserController extends Controller
+{
+    /*
+     * Display the details for a given user.
+     */
+    public function show(string $id): View
+    {
+        return view('user.details', [
+            'user' => User::findOrFail($id)
+        ]);
+    }
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+GET	/paintings	index	paintings.index
+GET	/paintings/create	create	paintings.create
+POST	/paintings	store	paintings.store
+GET	/paintings/{paintings}	show	paintings.show
+GET	/paintings/{paintings}/edit	edit	paintings.edit
+PUT/PATCH	/paintings/{paintings}	update	paintings.update
+DELETE	/paintings/{paintings}	destroy	paintings.destroy
+Table 4.1: Action, Routes and URLs
+Constructor Injection
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Repositories\EmployeeRepository;
+
+class EmployeeController extends Controller
+{
+    /*
+     * Create a new controller instance.
+     */
+    public function __construct(
+        protected EmployeeRepository $employees,
+    ) {}
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
+class EmployeeController extends Controller
+{
+
+    // Store a new employee.
+
+    public function store(Request $request): RedirectResponse
+    {
+        $name = $request->name;
+
+        // Store the employee...
+
+        return redirect('/employees');
+    }
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Http\Controllers\EmployeeController;
+
+Route::put('/employee/{id}', [EmployeeController::class, 'update']);
+#--------------------------------------------------------------------------------------------------------------------------------
+
+Route::get('/aboutMe', function () {
+    return redirect('/home/aboutMe');
+});
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+Route::post('/user/aboutMe', function () {
+
+    // Validate the request
+
+    return back()->withInput();
+
+});
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+return redirect()->route('register');
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+// For a route with URI: dashboard/{id}
+
+return redirect()->route('dashboard', ['id' => 1]);
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Http\Controllers\EmployeeController;
+
+return redirect()->action([EmployeeController::class, 'taxID']);
+
+#--------------------------------------------------------------------------------------------------------------------------------
+return redirect()->action(
+    [EmployeeController::class, 'dashboard'], ['id' => 1]
+);
+#--------------------------------------------------------------------------------------------------------------------------------
+
+Route::post('/employee/profile', function () {
+
+    // Update the employee's profile
+
+    return redirect('/dashboard')->with('status', 'Employee Profile Data updated!');
+});
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+return back()->withInput();
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@if (session('status'))
+    <div class="alert alert-success">
+        {{ session('status') }}
+    </div>
+@endif
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@if (count($fruits) === 1)
+    There is one fruit!
+@elseif (count($records) > 1)
+    There are multiple fruits.
+@else
+    There are no fruits.
+@endif
+
+#--------------------------------------------------------------------------------------------------------------------------------
+@isset($fruits)
+    // $fruits is defined and is not null
+@endisset
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@empty($fruits)
+    // $fruits is "empty"
+@endempty
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@switch($i)
+    @case(1)
+        Case 1
+        @break
+
+    @case(2)
+        Case 2
+        @break
+
+    @default
+        Default case
+@endswitch
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@auth
+    // The user is authenticated
+@endauth
+
+@guest
+    // The user is not authenticated
+@endguest
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@auth('admin')
+    // The user is authenticated
+@endauth
+
+@guest('admin')
+    // The user is not authenticated
+@endguest
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@for ($i = 0; $i < 10; $i++)
+    The current value of i is {{ $i }}
+@endfor
+
+@foreach ($employees as $employee)
+    <p>This is employee {{ $employee->id }}</p>
+@endforeach
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@forelse ($employees as $employee)
+    <li>{{ $employee->name }}</li>
+@empty
+    <p>No employees</p>
+@endforelse
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@while (true)
+    <p>Forever Loop</p>
+@endwhile
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@foreach ($employees as $employee)
+    @if ($employee->type == 1)
+        @continue
+    @endif
+
+    <li>{{ $employee->name }}</li>
+
+    @if ($employee->number == 5)
+        @break
+    @endif
+@endforeach
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@foreach ($employees as $employee)
+    @continue($employee->type == 1)
+
+    <li>{{ $employee->name }}</li>
+
+    @break($employee->number == 5)
+@endforeach
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@once
+    @push('scripts')
+        <script>
+            // Custom JavaScript script
+        </script>
+    @endpush
+@endonce
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@pushOnce('scripts')
+    <script>
+        // Custom JavaScript script
+    </script>
+@endPushOnce
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+Route::get('/', function () {
+    return view('welcome', ['name' => 'ABC']);
+});
+#--------------------------------------------------------------------------------------------------------------------------------
+
+Route::get('/', function () {
+    return view('welcome', ['name' => 'ABC']);
+});
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /*
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        Blade::withoutDoubleEncoding();
+    }
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+php artisan make:component Alert
+#--------------------------------------------------------------------------------------------------------------------------------
+
+php artisan make:component Forms/Input
+#--------------------------------------------------------------------------------------------------------------------------------
+
+php artisan make:component forms.input --view
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<x-alert/>
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<x-user-profile/>
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<x-inputs.button/>
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use Illuminate\Support\Str;
+
+/*
+ * Whether the component should be rendered
+ */
+public function shouldRender(): bool
+{
+    return Str::length($this->message) > 0;
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<x-alert type="error" :message="$message"/>
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\View\Components;
+
+use Illuminate\View\Component;
+use Illuminate\View\View;
+
+class Alert extends Component
+{
+    /*
+     * Component Instance.
+     */
+    public function __construct(
+        public string $type,
+        public string $message,
+    ) {}
+
+    /*
+     * Get the view / contents that represent the component.
+     */
+    public function render(): View
+    {
+        return view('components.alert');
+    }
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<div class="alert alert-{{ $type }}">
+    {{ $message }}
+</div>
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+<!-- resources/views/components/layout.blade.php -->
+
+<html>
+    <head>
+        <title>{{ $title ?? 'Grocery List' }}</title>
+    </head>
+    <body>
+        <h1>Things to Buy</h1>
+        <hr/>
+        {{ $item }}
+    </body>
+</html>
+
+#--------------------------------------------------------------------------------------------------------------------------------
+<!-- resources/views/product.blade.php -->
+
+<x-layout>
+    @foreach ($products as $product)
+        {{ $product }}
+    @endforeach
+</x-layout>
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<!-- resources/views/layouts/app.blade.php -->
+
+<html>
+    <head>
+        <title>App Name - @yield('title')</title>
+    </head>
+    <body>
+        @section('sidebar')
+            This is the master sidebar.
+        @show
+
+        <div class="container">
+            @yield('content')
+        </div>
+    </body>
+</html>
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use Illuminate\Support\Facades\Blade;
+
+return Blade::render('Welcome, {{ $name }}', ['name' => 'ABC']);
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+return Blade::render(
+
+    'Welcome, {{ $name }}',
+    ['name' => 'ABC'],
+    deleteCachedView: true
+
+);
+#--------------------------------------------------------------------------------------------------------------------------------
+
+@fragment('employee-list')
+
+    <ul>
+        @foreach ($employees as $employee)
+
+            <li>{{ $employee->name }}</li>
+
+        @endforeach
+    </ul>
+
+@endfragment
+#--------------------------------------------------------------------------------------------------------------------------------
+
+return view('homepage', ['employee' => $employees])->fragment('employee-list');
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+return view('homepage', ['employees' => $employees])
+    ->fragmentIf($request->hasHeader('HX-Request'), 'employee-list');
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+view('homepage', ['employees' => $employee])
+    ->fragments(['employee-list', 'task-list']);
+#--------------------------------------------------------------------------------------------------------------------------------
+
+view('homepage' ['employees' => $employees])
+    ->fragmentsIf(
+
+        $request->hasHeader('HX-Request'),
+        ['employee-list', 'task-list']
+
+    );

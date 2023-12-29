@@ -1,0 +1,608 @@
+
+php artisan make:model Car
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model and a CarFactory class
+php artisan make:model Car --factory
+php artisan make:model Car -f
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model and a CarSeeder class
+php artisan make:model Car --seed
+php artisan make:model Car -s
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model and a CarController class
+php artisan make:model Car --controller
+php artisan make:model Car -c
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model, CarController resource class, and form request classes
+php artisan make:model Car --controller --resource --requests
+php artisan make:model Car -crR
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model and a CarPolicy class
+php artisan make:model Car --policy
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model and a migration, factory, seeder, and controller
+php artisan make:model Car -mfsc
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Shortcut to generate a model, migration, factory, seeder, policy, controller, and form requests
+php artisan make:model Car --all
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a pivot model
+php artisan make:model Member --pivot
+php artisan make:model Member -p
+#--------------------------------------------------------------------------------------------------------------------------------
+
+php artisan make:migration create_cars_table
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Car extends Model
+{
+    /*
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'car_id';
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Car extends Model
+{
+    /*
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+
+    public $timestamps = false;
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Models;
+
+use App\Events\UserDeleted;
+use App\Events\UserSaved;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    use Notifiable;
+
+    /*
+     * The event map for the model.
+     *
+     * @var array
+     */
+
+    protected $dispatchesEvents = [
+        'saved' => UserSaved::class,
+        'deleted' => UserDeleted::class,
+    ];
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+$employees = DB::table('employees')->get();
+
+foreach ($employees as $employee)
+{
+    var_dump($employee->name);
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$employee = DB::table('employees')->where('name', 'ABC')->first();
+
+var_dump($employee->name);
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$employee = DB::table('employees')->where('name', 'ABC')->pluck('name');
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$employees = DB::table('employees')->select('name', 'email')->get();
+
+$employees = DB::table('employees')->distinct()->get();
+
+$employees = DB::table('employees')->select('name as employeeName')->get();
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$employees = DB::table('employees')
+       	             ->where('employedDays', '>', 180)
+             		   	->orWhere('name', 'ABC')
+             	       	->get();
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$employees = DB::table('employees')
+                    ->orderBy('name', 'desc')
+                    ->groupBy('count')
+                    ->having('count', '>', 180)
+                    ->get();
+#--------------------------------------------------------------------------------------------------------------------------------
+
+DB::table('employees')
+            ->join('contacts', 'employees.id', '=', 'contacts. employee _id')
+            ->join('orders', 'employees.id', '=', 'orders. employee _id')
+            ->select('employees.id', 'contacts.phone', 'orders.price')
+            ->get();
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+DB::table('employees')
+        ->leftJoin('posts', 'employees.id', '=', 'posts. employee _id')
+        ->get();
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+DB::table('employees')
+        ->join('contacts', function($join)
+        {
+            $join->on('employees.id', '=', 'contacts.employee_id')
+                 ->where('contacts.employee_id', '>', 10);
+        })
+        ->get();
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+DB::table('employees')
+            ->where('name', '=', 'ABC')
+            ->orWhere(function($query)
+            {
+                $query->where('votes', '>', 100)
+                      ->where('title', '<>', 'Admin');
+            })
+            ->get();
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$employees = DB::table('employees')->count();
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$cost = DB::table('orders')->max('cost');
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$cost = DB::table('orders')->min('cost');
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$cost = DB::table('orders')->avg('cost');
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$total = DB::table('employees')->sum('votes');
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$employees = DB::table('employees')
+                     ->select(DB::raw('count(*) as employee_count, status'))
+                     ->where('status', '<>', 1)
+                     ->groupBy('status')
+                     ->get();
+
+                     #--------------------------------------------------------------------------------------------------------------------------------
+
+DB::table('employees')->where('votes', '>', 140)->sharedLock()->get();
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+DB::table('employees')->where('votes', '>', 140)->lockForUpdate()->get();
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$value = Cache::rememberForever('employees', function () {
+    return DB::table('employees')->get();
+});
+#--------------------------------------------------------------------------------------------------------------------------------
+
+php artisan make:model Office
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+php artisan make:model Office –-migration
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model and a OfficeFactory class...
+php artisan make:model Office --factory
+php artisan make:model Office -f
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model and a OfficeSeeder class...
+php artisan make:model Office --seed
+php artisan make:model Office -s
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model and a OfficeController class...
+php artisan make:model Office --controller
+php artisan make:model Office -c
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model, OfficeController resource class, and form request classes...
+php artisan make:model Office --controller --resource --requests
+php artisan make:model Office -crR
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model and a OfficePolicy class...
+php artisan make:model Office --policy
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a model and a migration, factory, seeder, and controller...
+php artisan make:model Office -mfsc
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Shortcut to generate a model, migration, factory, seeder, policy, controller, and form requests...
+php artisan make:model Office --all
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Generate a pivot model...
+php artisan make:model Member --pivot
+php artisan make:model Member -p
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Office extends Model
+{
+    // Code Logic
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Office extends Model
+{
+    /**
+     * The table associated with the model. And the logic.
+     *
+     * @var string
+     *
+     */
+    protected $table = 'my_offices';
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Office extends Model
+{
+    /**
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'office_id';
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+class Office extends Model
+{
+    /**
+     * Indicates if the model's ID is auto-incrementing.
+     *
+     * @var bool
+     *
+     */
+    public $incrementing = false;
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+class Office extends Model
+{
+    /**
+     * The data type of the auto-incrementing ID.
+     *
+     * @var string
+     *
+     */
+    protected $keyType = 'string';
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+
+class Chapter extends Model
+{
+    use HasUuids;
+
+    // Code logic
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$chapter = Chapter::create(['title' => 'Chapter 1']);
+
+$chapter>id;
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use Ramsey\Uuid\Uuid;
+
+/**
+ * Generate a new UUID for the model.
+ */
+
+public function newUniqueId(): string
+{
+    return (string) Uuid::uuid4();
+}
+
+/**
+ * Get the columns that should receive a unique identifier.
+ *
+ * @return array<int, string>
+ *
+ */
+ #--------------------------------------------------------------------------------------------------------------------------------
+
+public function uniqueIds(): array
+{
+    return ['id', 'offer_code'];
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Office extends Model
+{
+    /**
+     * The database connection that should be used by the model.
+     *
+     * @var string
+     *
+     * Code Logic
+     */
+    protected $connection = 'sqlite';
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Models\Office;
+
+foreach (Office::all() as $office) {
+
+    echo $office->name;
+
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+$offices = Office::where('location', 'NYC')->get();
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$offices = $offices->reject(function (Office $office) {
+
+    return $office->cancelled;
+
+});
+#--------------------------------------------------------------------------------------------------------------------------------
+
+foreach ($offices as $office) {
+
+    echo $office->id;
+
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+use App\Models\Office;
+
+use Illuminate\Database\Eloquent\Collection;
+
+Office::chunk(200, function (Collection $offices) {
+
+    foreach ($offices as $office) {
+
+        // Code Logic
+
+    }
+
+});
+#--------------------------------------------------------------------------------------------------------------------------------
+
+Office::where('closed', true)
+
+    ->chunkById(200, function (Collection $offices) {
+
+        $offices->each->update(['closed' => false]);
+
+    }, $column = 'id');
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Models\Office;
+
+foreach (Office::lazy() as $office) {
+
+    // Code Logic
+
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+Office::where('closed', true)
+
+    ->lazyById(200, $column = 'id')
+
+    ->each->update(['closed' => false]);
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Models\Office;
+
+foreach (Office::where('location, 'NYC')->cursor() as $office) {
+
+    //Code Logic
+
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Models\User;
+
+$users = User::cursor()->filter(function (User $user) {
+
+    return $user->age > 18;
+
+});
+#--------------------------------------------------------------------------------------------------------------------------------
+
+foreach ($users as $user) {
+
+    echo $user->name;
+
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Models\Location;
+use App\Models\Office;
+
+return Location::addSelect(['last_office' => Office::select('name')
+
+    ->whereColumn('Location_id', 'locations.id')
+    ->orderByDesc('Location_id')
+    ->limit(1)
+
+])->get();
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Models\Office;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
+class OfficeController extends Controller
+{
+    /**
+     * Store a new Office in the database.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        // Validate the request...
+
+        $office = new Office;
+
+        $office->name = $request->name;
+
+        $office->save();
+
+        return redirect('/offices');
+    }
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Models\Office;
+
+$office  = Office::find(1);
+
+$office ->name = 'SFO';
+
+$office ->save();
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Models\Office;
+
+$office = Office::find(1);
+
+$office->delete();
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Observers;
+
+use App\Models\Employee;
+
+class EmployeeObserver
+{
+    /**
+     * Handle the Employee "created" event.
+     */
+    public function created(Employee $employee): void
+    {
+        // Code Logic
+    }
+
+    /**
+     * Handle the Employee "updated" event.
+     */
+    public function updated(User $employee): void
+    {
+        // Code Logic
+    }
+
+    /**
+     * Handle the User "deleted" event.
+     */
+    public function deleted(User $user): void
+    {
+        // ...
+    }
+
+    /**
+     * Handle the Employee "restored" event.
+     */
+    public function restored(User $employee): void
+    {
+        // Code Logic
+    }
+
+    /**
+     * Handle the Employee "forceDeleted" event.
+     */
+    public function forceDeleted(User $employee): void
+    {
+        // Code Logic
+    }
+}
