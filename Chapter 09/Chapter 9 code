@@ -1,0 +1,482 @@
+
+php artisan make:notification orderRecieved
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+
+    use Notifiable;
+
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Notifications\orderRecieved;
+
+$user->notify(new orderRecieved($order));
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use Illuminate\Support\Facades\Notification;
+
+Notification::send($users, new orderRecieved($order));
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+Notification::sendNow($developers, new DeploymentCompleted($deployment));
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function via(object $notifiable): array
+{
+
+    return $notifiable->prefers_sms ? ['vonage'] : ['mail', 'database'];
+
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Notifications;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Notification;
+
+class orderRecieved extends Notification implements ShouldQueue
+{
+    use Queueable;
+
+    // Logic
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$user->notify(new orderRecieved($invoice));
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+$delay = now()->addMinutes(10);
+
+$user->notify((new orderRecieved($invoice))->delay($delay));
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+$user->notify((new orderRecieved($invoice))->delay([
+
+    'mail' => now()->addMinutes(2),
+    'sms' => now()->addMinutes(5),
+
+]));
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function withDelay(object $notifiable): array
+{
+
+    return [
+        'mail' => now()->addMinutes(2),
+        'sms' => now()->addMinutes(5),
+    ];
+
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+<?php
+
+namespace App\Notifications;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Notification;
+
+class orderRecieved extends Notification implements ShouldQueue
+{
+    use Queueable;
+
+
+    public function __construct()
+    {
+
+        $this->onConnection('redis');
+
+    }
+
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function viaConnections(): array
+{
+    return [
+        'mail' => 'redis',
+        'database' => 'sync',
+    ];
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function viaQueues(): array
+{
+    return [
+
+        'mail' => 'mail-queue',
+        'slack' => 'slack-queue',
+
+    ];
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Notifications\orderRecieved;
+
+$user->notify((new orderRecieved($order))->afterCommit());
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Notifications;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Notification;
+
+class orderRecieved extends Notification implements ShouldQueue
+{
+    use Queueable;
+
+    public function __construct()
+    {
+        $this->afterCommit();
+    }
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function shouldSend(object $notifiable, string $channel): bool
+{
+    return $this->order->isMade();
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use Illuminate\Broadcasting\Channel;
+use Illuminate\Support\Facades\Notification;
+
+Notification::route('mail', 'abc@example.com')
+            ->route('vonage', '5555555555')
+            ->route('slack', '#slack-new')
+            ->route('broadcast', [new Channel('channel-name')])
+            ->notify(new orderRecieved($order));
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+Notification::route('mail', [
+
+    'qwerty@example.com' => 'Sample Name',
+
+])->notify(new orderRecieved($order));
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+    $url = url('/order/'.$this->invoice->id);
+
+    return (new MailMessage)
+                ->greeting('Hello!')
+                ->line('We have recieved your order')
+                ->lineIf($this->amount > 0, "Amount paid: {$this->amount}")
+                ->action('View Bill', $url)
+                ->line('Thank you for using our application!');
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+    return (new MailMessage)->view(
+
+        'emails.name', ['order' => $this->order]
+
+    );
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+    return (new MailMessage)->view(
+
+        ['emails.name.html', 'emails.name.plain'],
+        ['order' => $this->order]
+
+    );
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+    return (new MailMessage)
+                ->from('abc@example.com', 'Sample Name')
+                ->line('...');
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\Notification;
+
+class User extends Authenticatable
+{
+    use Notifiable;
+
+    public function routeNotificationForMail(Notification $notification): array|string
+    {
+
+        // Return email address
+        return $this->email_address;
+
+        // Return email address and name
+        return [$this->email_address => $this->name];
+
+    }
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+    return (new MailMessage)
+                ->subject('Notification Subject')
+                ->line('...');
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+    return (new MailMessage)
+                ->mailer('postmark')
+                ->line('...');
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+php artisan vendor:publish --tag=laravel-notifications
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+    return (new MailMessage)
+                ->greeting(Welcome!')
+                ->attach('/path/to/file');
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+
+    return (new MailMessage)
+
+                ->greeting('Welcome!')
+
+                ->attach('/path/to/file', [
+
+                    'as' => 'name.pdf',
+
+                    'mime' => 'application/pdf',
+
+                ]);
+
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Mail\InvoicePaid as OrderRecievedMailable;
+
+public function toMail(object $notifiable): Mailable
+{
+    return (new OrderRecievedMailable($this->order))
+
+                ->to($notifiable->email)
+
+                ->attachFromStorage('/path/to/file');
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+    return (new MailMessage)
+                ->greeting('Welcome!')
+                ->attachMany([
+                    '/path/to/forge.svg',
+                    '/path/to/vapor.svg' => [
+                        'as' => 'Logo1.svg',
+                        'mime' => 'image/svg+xml',
+                    ],
+                ]);
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+    return (new MailMessage)
+
+                ->greeting('Welcome!')
+
+                ->attachData($this->pdf, 'name.pdf', [
+
+                    'mime' => 'application/pdf',
+
+                ]);
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function toMail(object $notifiable): MailMessage
+{
+    return (new MailMessage)
+
+                ->greeting('Upvoted!')
+
+                ->tag('upvote')
+
+                ->metadata('comment_id', $this->comment->id);
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use Symfony\Component\Mime\Email;
+
+public function toMail(object $notifiable): MailMessage
+{
+    return (new MailMessage)
+
+                ->withSymfonyMessage(function (Email $message) {
+
+                    $message->getHeaders()->addTextHeader(
+
+                        'Custom-Header', 'Header Value'
+
+                    );
+                });
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use Illuminate\Notifications\Messages\BroadcastMessage;
+
+public function toBroadcast(object $notifiable): BroadcastMessage
+{
+    return new BroadcastMessage([
+
+        'order_id' => $this->order->id,
+
+        'amount' => $this->order->amount,
+
+    ]);
+
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+return (new BroadcastMessage($data))
+                ->onConnection('sqs')
+                ->onQueue('broadcasts');
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function broadcastType(): string
+{
+    return 'broadcast.message';
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+Echo.private('App.Models.User.' + userId)
+    .notification((notification) => {
+        console.log(notification.type);
+    });
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    use Notifiable;
+
+    public function receivesBroadcastNotificationsOn(): string
+    {
+
+        return 'users.'.$this->id;
+
+    }
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Listeners\CheckNotificationStatus;
+use Illuminate\Notifications\Events\NotificationSending;
+
+protected $listen = [
+
+    NotificationSending::class => [
+
+        CheckNotificationStatus::class,
+
+   ],
+
+];
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use Illuminate\Notifications\Events\NotificationSending;
+
+public function handle(NotificationSending $event): bool
+{
+    return false;
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+public function handle(NotificationSending $event): void
+{
+    // $event->channel
+    // $event->notifiable
+    // $event->notification
+}
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+use App\Listeners\LogNotification;
+use Illuminate\Notifications\Events\NotificationSent;
+
+
+protected $listen = [
+
+    NotificationSent::class => [
+
+        LogNotification::class,
+
+    ],
+];
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+public function handle(NotificationSent $event): void
+{
+    // $event->channel
+    // $event->notifiable
+    // $event->notification
+    // $event->response
+}
